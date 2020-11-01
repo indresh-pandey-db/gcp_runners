@@ -1,86 +1,40 @@
-#!/usr/bin/env bash
-set -eEo pipefail
-
-function error {
-    echo "Error; $1"
-}
-
-function getRegistrationToken {
-    if [[ -z GITHUB_TOKEN ]]; then
-        error "A GITHUB_TOKEN environment variable is required to register the actions runner with the repository or organization."
-        exit 1
-    else
-        # Get a short lived token to register the actions runner
-        echo "Getting registration token for runner..."
-
-        if [[ -z $SCOPE ]]; then
-            error "Was not able to identify SCOPE for the token"
-            exit 1
-        fi
-
-        if [[ ${SCOPE} == "enterprises" ]]; then
-            URL_PATH="$(echo "${RUNNER_URL}" | grep / | cut -d/ -f5-)"
-        else
-            # Get the path to the organization or repository
-            URL_PATH="$(echo "${RUNNER_URL}" | grep / | cut -d/ -f4-)"
-        fi
-        TOKEN_URL="https://api.github.com/${SCOPE}/${URL_PATH}/actions/runners/registration-token"
-        TOKEN="$(curl -X POST -fsSL -H "Authorization: token ${GITHUB_TOKEN}" ${TOKEN_URL} | jq -r .token)"
-    fi
-}
-
-RUNNER_OPTIONS=""
-SCOPE=""
-TOKEN=""
-
-if [[ -z $RUNNER_NAME ]]; then
-    echo "Using hostname for Actions Runner Name."
-    export RUNNER_NAME=${HOSTNAME}
+#!/bin/sh
+registration_url="https://github.com/${GITHUB_OWNER}"
+if [ -z "${GITHUB_REPOSITORY}" ]; then
+    token_url="https://api.github.com/orgs/${GITHUB_OWNER}/actions/runners/registration-token"
+else
+    token_url="https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPOSITORY}/actions/runners/registration-token"
+    registration_url="${registration_url}/${GITHUB_REPOSITORY}"
 fi
 
-# We need to know what type of runner we are
-if [[ -z "${RUNNER_ENTERPRISE_URL}" && -z "${RUNNER_ORGANIZATION_URL}" && -z "${RUNNER_REPOSITORY_URL}" ]]; then
-    error "RUNNER_ENTERPRISE_URL, RUNNER_ORGANIZATION_URL or RUNNER_REPOSITORY_URL needs to be specified when registering an Actions runner"
-    exit 1
+echo "Requesting token at '${token_url}'"
+
+payload=$(curl -sX POST -H "Authorization: token ${GITHUB_PAT}" ${token_url})
+export RUNNER_TOKEN=$(echo $payload | jq .token --raw-output)
+
+if [ -z "${RUNNER_NAME}" ]; then
+    RUNNER_NAME=$(hostname)
 fi
 
-# Use priority of enterprise -> organization -> repoistory if more than one specified
-if [[ -n ${RUNNER_ENTERPRISE_URL} ]]; then
-    export RUNNER_URL=${RUNNER_ENTERPRISE_URL}
-    SCOPE=enterprises
-elif [[ -n ${RUNNER_ORGANIZATION_URL} ]]; then
-    export RUNNER_URL=${RUNNER_ORGANIZATION_URL}
-    SCOPE=orgs
-elif [[ -n ${RUNNER_REPOSITORY_URL} ]]; then
-    export RUNNER_URL=${RUNNER_REPOSITORY_URL}
-    SCOPE=repos
-fi
-
-# If the user has provided any runner labels add them to the config options
-if [[ -n ${RUNNER_LABELS} ]]; then
-    RUNNER_OPTIONS="${RUNNER_OPTIONS} --labels ${RUNNER_LABELS}"
-fi
-
-# The runner group that the self-hosted runner will be registered with
-GROUP=${RUNNER_GROUP:-"default"}
-
-echo "Getting temporary access token for registering"
-getRegistrationToken
-
-echo "Configuring GitHub Actions Runner and registering"
 ./config.sh \
-    --unattended \
-    --url "${RUNNER_URL}" \
-    --token "${TOKEN}" \
     --name "${RUNNER_NAME}" \
-    --work ${RUNNER_WORK_DIRECTORY} \
-    --runnergroup ${GROUP} \
-    $RUNNER_OPTIONS
+    --token "${RUNNER_TOKEN}" \
+    --url "${registration_url}" \
+    --work "${RUNNER_WORKDIR}" \
+    --labels "${RUNNER_LABELS}" \
+    --unattended \
+    --replace
 
-echo "Starting GitHub Actions Runner"
-env -i ./runsvc.sh
+remove() {
+    payload=$(curl -sX POST -H "Authorization: token ${GITHUB_PAT}" ${token_url%/registration-token}/remove-token)
+    export REMOVE_TOKEN=$(echo $payload | jq .token --raw-output)
 
-# Deregister
-echo Cleaning up runner registration...
-getRegistrationToken
-./config.sh remove --token "${TOKEN}"
+    ./config.sh remove --unattended --token "${REMOVE_TOKEN}"
+}
+
+trap 'remove; exit 130' INT
+trap 'remove; exit 143' TERM
+
+./run.sh "$*" &
+
+wait $!
