@@ -19,8 +19,9 @@ LABEL maintainer="GitHub" \
 
 # Create a user for running actions
 RUN useradd -m actions
-RUN mkdir -p /home/actions ${AGENT_TOOLS_DIRECTORY}
-WORKDIR /home/actions
+#RUN mkdir -p /home/actions ${AGENT_TOOLS_DIRECTORY}
+RUN mkdir -p /home/actions/indresh_pandey
+WORKDIR /home/actions/indresh_pandey
 
 # jq is used by the runner to extract the token when registering the runner
 RUN curl -L -O https://github.com/actions/runner/releases/download/v${GH_RUNNER_VERSION}/actions-runner-linux-x64-${GH_RUNNER_VERSION}.tar.gz \
@@ -37,7 +38,7 @@ COPY entrypoint.sh .
 RUN chmod +x ./entrypoint.sh
 
 # Now that the OS has been updated to include required packages, update ownership and then switch to actions user
-RUN chown -R actions:actions /home/actions ${AGENT_TOOLS_DIRECTORY}
+RUN chown -R actions:actions /home/actions/indresh_pandey
 
 USER actions
 CMD [ "./entrypoint.sh" ]
