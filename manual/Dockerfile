@@ -20,8 +20,8 @@ LABEL maintainer="GitHub" \
 # Create a user for running actions
 RUN useradd -m actions
 #RUN mkdir -p /home/actions ${AGENT_TOOLS_DIRECTORY}
-RUN mkdir -p /home/actions/indresh_pandey
-WORKDIR /home/actions/indresh_pandey
+RUN mkdir -p /home/indresh_pandey
+WORKDIR /home/indresh_pandey
 
 # jq is used by the runner to extract the token when registering the runner
 RUN curl -L -O https://github.com/actions/runner/releases/download/v${GH_RUNNER_VERSION}/actions-runner-linux-x64-${GH_RUNNER_VERSION}.tar.gz \
