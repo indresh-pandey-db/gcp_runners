@@ -29,7 +29,9 @@ RUN curl -L -O https://github.com/actions/runner/releases/download/v${GH_RUNNER_
     && rm -f actions-runner-linux-x64-${GH_RUNNER_VERSION}.tar.gz \
     && ./bin/installdependencies.sh \
     && yum install jq -y \
-    && yum clean all
+    && yum clean all \
+    && yum install python \
+    && yum install git
 
 # Copy out the runsvc.sh script to the root directory for running the service
 RUN cp bin/runsvc.sh . && chmod +x ./runsvc.sh
