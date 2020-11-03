@@ -23,15 +23,21 @@ RUN useradd -m actions
 RUN mkdir -p /home/pandind/gcp_runners/manual
 WORKDIR /home/pandind/gcp_runners/manual
 
+RUN apt-get update && \
+    apt-get -y install curl \
+    iputils-ping \
+    tar \
+    jq \
+    python
+
 # jq is used by the runner to extract the token when registering the runner
 RUN curl -L -O https://github.com/actions/runner/releases/download/v${GH_RUNNER_VERSION}/actions-runner-linux-x64-${GH_RUNNER_VERSION}.tar.gz \
     && tar -zxf actions-runner-linux-x64-${GH_RUNNER_VERSION}.tar.gz \
     && rm -f actions-runner-linux-x64-${GH_RUNNER_VERSION}.tar.gz \
     && ./bin/installdependencies.sh \
     && yum install jq -y \
-    && yum clean all \
-    && yum install python \
-    && yum install git
+    && yum clean all 
+   
 
 # Copy out the runsvc.sh script to the root directory for running the service
 RUN cp bin/runsvc.sh . && chmod +x ./runsvc.sh
