@@ -12,7 +12,7 @@ spec:
       labels:
         app: runner
     spec:
-      serviceAccountName: gke-runner-sa
+      serviceAccountName: project-service-account@dev1-cpt-sdlc-1-0817.iam.gserviceaccount.com
       automountServiceAccountToken: true
       containers:
         - name: runner
