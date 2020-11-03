@@ -16,7 +16,7 @@ spec:
       automountServiceAccountToken: true
       containers:
         - name: runner
-          image: gcr.io/PROJECT_ID/runner:latest
+          image: gcr.io/PROJECT_ID/static-site:latest
           envFrom:
             - configMapRef:
                 name: runner-k8s-config
