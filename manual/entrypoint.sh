@@ -39,10 +39,10 @@ if [[ -z $RUNNER_NAME ]]; then
 fi
 
 # We need to know what type of runner we are
-if [[ -z "${RUNNER_ENTERPRISE_URL}" && -z "${RUNNER_ORGANIZATION_URL}" && -z "${RUNNER_REPOSITORY_URL}" ]]; then
-    error "RUNNER_ENTERPRISE_URL, RUNNER_ORGANIZATION_URL or RUNNER_REPOSITORY_URL needs to be specified when registering an Actions runner"
-    exit 1
-fi
+#if [[ -z "${RUNNER_ENTERPRISE_URL}" && -z "${RUNNER_ORGANIZATION_URL}" && -z "${RUNNER_REPOSITORY_URL}" ]]; then
+ #   error "RUNNER_ENTERPRISE_URL, RUNNER_ORGANIZATION_URL or RUNNER_REPOSITORY_URL needs to be specified when registering an Actions runner"
+  #  exit 1
+#fi
 
 # Use priority of enterprise -> organization -> repoistory if more than one specified
 if [[ -n ${RUNNER_ENTERPRISE_URL} ]]; then
