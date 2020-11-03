@@ -12,7 +12,7 @@ spec:
       labels:
         app: runner
     spec:
-      serviceAccountName: project-service-account@dev1-cpt-sdlc-1-0817.iam.gserviceaccount.com
+      serviceAccountName: dev1-cpt-sdlc-1
       automountServiceAccountToken: true
       containers:
         - name: runner
