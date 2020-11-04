@@ -26,7 +26,7 @@ WORKDIR /home/pandind/gcp_runners/manual
 RUN yum install -y curl \
     && yum install -y tar \
     && yum install -y jq \
-    && yum install -y python
+    && yum install -y python3
 
 # jq is used by the runner to extract the token when registering the runner
 RUN curl -L -O https://github.com/actions/runner/releases/download/v${GH_RUNNER_VERSION}/actions-runner-linux-x64-${GH_RUNNER_VERSION}.tar.gz \
