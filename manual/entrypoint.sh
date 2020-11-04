@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the Licenses.
 
-# set name for this runner as the hostname
+# set name for this runner as the hostnamee
 # shellcheck disable=SC2034
 # ACTIONS_RUNNER_INPUT_NAME is used by config.sh
 ACTIONS_RUNNER_INPUT_NAME=$HOSTNAME
