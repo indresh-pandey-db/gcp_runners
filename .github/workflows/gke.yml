@@ -29,7 +29,7 @@ env:
 jobs:
   setup-build-publish-deploy:
     name: Setup, Build, Publish, and Deploy
-    runs-on: self-hosted-gke
+    runs-on: self-hosted
 
     steps:
     - name: Checkout
