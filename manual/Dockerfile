@@ -23,8 +23,8 @@ RUN useradd -m actions
 RUN mkdir -p /home/pandind/gcp_runners/manual
 WORKDIR /home/pandind/gcp_runners/manual
 
-RUN apt-get update && \
-    apt-get -y install curl \
+RUN yum update && \
+    yum -y install curl \
     iputils-ping \
     tar \
     jq \
