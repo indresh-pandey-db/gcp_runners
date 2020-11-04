@@ -22,7 +22,7 @@ ACTIONS_RUNNER_INPUT_NAME=$HOSTNAME
  ACTIONS_RUNNER_INPUT_TOKEN=$(curl -sX POST -H "Authorization: token 1fcdbe6d96256fc8116907d97a9c7afea7a1940c" https://api.github.com/repos/pandind/gcp_runners/actions/runners/registration-token | jq -r .token)
 # configure runner
 export RUNNER_ALLOW_RUNASROOT=1
-./config.sh --unattended --replace --work "/tmp" --url "$ACTIONS_RUNNER_INPUT_URL" --token "$ACTIONS_RUNNER_INPUT_TOKEN" --labels k8s-runner
+./config.sh --unattended --replace --work "/tmp" --url https://github.com/pandind/gcp_runners --token "$ACTIONS_RUNNER_INPUT_TOKEN" --labels k8s-runner
 
 # start runner
 # https://github.com/actions/runner/issues/246#issuecomment-615293718
