@@ -17,9 +17,10 @@
 # shellcheck disable=SC2034
 # ACTIONS_RUNNER_INPUT_NAME is used by config.sh
 ACTIONS_RUNNER_INPUT_NAME=$HOSTNAME
+GITHUB_PAT=3632a6abd3026ca5f79ecb53fe9f62250453cfda
 # get regsistration token for this runnner
 #ACTIONS_RUNNER_INPUT_TOKEN="$(curl -sS --request POST --url "https://github.com/pandind/gcp_runners/actions/runners/registration-token" --header "authorization: Bearer AQSHWARKOD73VSKOCSGRH6K7UFDW2"  --header 'content-type: application/json' | jq -r .token)"
- ACTIONS_RUNNER_INPUT_TOKEN=$(curl -sX POST -H "Authorization: token 1fcdbe6d96256fc8116907d97a9c7afea7a1940c" https://api.github.com/repos/pandind/gcp_runners/actions/runners/registration-token | jq -r .token)
+ ACTIONS_RUNNER_INPUT_TOKEN=$(curl -sX POST -H "Authorization: token $GITHUB_PAT" https://api.github.com/repos/pandind/gcp_runners/actions/runners/registration-token | jq -r .token)
 # configure runner
 export RUNNER_ALLOW_RUNASROOT=1
 ./config.sh --unattended --replace --work "/tmp" --url https://github.com/pandind/gcp_runners --token "$ACTIONS_RUNNER_INPUT_TOKEN" --labels k8s-runner
