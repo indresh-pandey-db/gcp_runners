@@ -24,7 +24,6 @@ RUN mkdir -p /home/pandind/gcp_runners/manual
 WORKDIR /home/pandind/gcp_runners/manual
 
 RUN yum install -y curl \
-    && yum install -y iputils-ping \
     && yum install -y tar \
     && yum install -y jq \
     && yum install -y python
