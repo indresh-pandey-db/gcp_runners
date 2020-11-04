@@ -23,12 +23,11 @@ RUN useradd -m actions
 RUN mkdir -p /home/pandind/gcp_runners/manual
 WORKDIR /home/pandind/gcp_runners/manual
 
-RUN yum update && \
-    yum -y install curl \
-    iputils-ping \
-    tar \
-    jq \
-    python
+RUN yum install -y curl \
+    && yum install -y iputils-ping \
+    && yum install -y tar \
+    && yum install -y jq \
+    && yum install -y python
 
 # jq is used by the runner to extract the token when registering the runner
 RUN curl -L -O https://github.com/actions/runner/releases/download/v${GH_RUNNER_VERSION}/actions-runner-linux-x64-${GH_RUNNER_VERSION}.tar.gz \
