@@ -1,27 +1,40 @@
-#!/bin/bash
-# Copyright 2020 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the Licenses.
+#!/bin/sh
+registration_url="https://github.com/${GITHUB_OWNER}"
+if [ -z "${GITHUB_REPOSITORY}" ]; then
+    token_url="https://api.github.com/orgs/${GITHUB_OWNER}/actions/runners/registration-token"
+else
+    token_url="https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPOSITORY}/actions/runners/registration-token"
+    registration_url="${registration_url}/${GITHUB_REPOSITORY}"
+fi
 
-# set name for this runner as the hostname
-# shellcheck disable=SC2034
-# ACTIONS_RUNNER_INPUT_NAME is used by config.sh
-ACTIONS_RUNNER_INPUT_NAME=$HOSTNAME
-# get regsistration token for this runnner
-ACTIONS_RUNNER_INPUT_TOKEN="$(curl -sS --request POST --url "https://github.com/pandind/gcp_runners/actions/runners/registration-token" --header "authorization: Bearer AQSHWARKOD73VSKOCSGRH6K7UFDW2"  --header 'content-type: application/json' | jq -r .token)"
-# configure runner
-export RUNNER_ALLOW_RUNASROOT=1
-./config.sh --unattended --replace --work "/tmp" --url "$ACTIONS_RUNNER_INPUT_URL" --token "$ACTIONS_RUNNER_INPUT_TOKEN" --labels k8s-runner
-# start runner
-# https://github.com/actions/runner/issues/246#issuecomment-615293718
-./runsvc.sh
+echo "Requesting token at '${token_url}'"
+
+payload=$(curl -sX POST -H "Authorization: token ${GITHUB_PAT}" ${token_url})
+export RUNNER_TOKEN=$(echo $payload | jq .token --raw-output)
+
+if [ -z "${RUNNER_NAME}" ]; then
+    RUNNER_NAME=$(hostname)
+fi
+
+./config.sh \
+    --name "${RUNNER_NAME}" \
+    --token "${RUNNER_TOKEN}" \
+    --url "${registration_url}" \
+    --work "${RUNNER_WORKDIR}" \
+    --labels "${RUNNER_LABELS}" \
+    --unattended \
+    --replace
+
+remove() {
+    payload=$(curl -sX POST -H "Authorization: token ${GITHUB_PAT}" ${token_url%/registration-token}/remove-token)
+    export REMOVE_TOKEN=$(echo $payload | jq .token --raw-output)
+
+    ./config.sh remove --unattended --token "${REMOVE_TOKEN}"
+}
+
+trap 'remove; exit 130' INT
+trap 'remove; exit 143' TERM
+
+./run.sh "$*" &
+
+wait $!
