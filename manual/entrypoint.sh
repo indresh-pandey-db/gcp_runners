@@ -17,7 +17,7 @@
 # shellcheck disable=SC2034
 # ACTIONS_RUNNER_INPUT_NAME is used by config.sh
 ACTIONS_RUNNER_INPUT_NAME=$HOSTNAME
-GITHUB_PAT=3632a6abd3026ca5f79ecb53fe9f62250453cfda
+GITHUB_PAT=$GITHUB_PAT
 # get regsistration token for this runnner
 #ACTIONS_RUNNER_INPUT_TOKEN="$(curl -sS --request POST --url "https://github.com/pandind/gcp_runners/actions/runners/registration-token" --header "authorization: Bearer AQSHWARKOD73VSKOCSGRH6K7UFDW2"  --header 'content-type: application/json' | jq -r .token)"
  ACTIONS_RUNNER_INPUT_TOKEN=$(curl -sX POST -H "Authorization: token $GITHUB_PAT" https://api.github.com/repos/pandind/gcp_runners/actions/runners/registration-token | jq -r .token)
