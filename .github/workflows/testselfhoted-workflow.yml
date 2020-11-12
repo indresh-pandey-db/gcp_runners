@@ -1,0 +1,7 @@
+name: End-to-End Tests
+on: [push]
+
+jobs:
+  test:
+    name: Run TestCafe Tests
+    runs-on: indresh_pandey
